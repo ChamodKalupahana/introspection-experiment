@@ -37,18 +37,22 @@ def test_generation(model, tokenizer):
     ]
     
     # Apply chat template
-    input_ids = tokenizer.apply_chat_template(
+    inputs = tokenizer.apply_chat_template(
         messages,
         add_generation_prompt=True,
-        return_tensors="pt"
-    ).to(model.device)
+        return_tensors="pt",
+        return_dict=True,
+    )
+    input_ids = inputs["input_ids"].to(model.device)
+    attention_mask = inputs["attention_mask"].to(model.device)
     
     print("\nGenerating response...")
     
     # Generate
     with torch.no_grad():
         outputs = model.generate(
-            input_ids,
+            input_ids=input_ids,
+            attention_mask=attention_mask,
             max_new_tokens=50,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id,
